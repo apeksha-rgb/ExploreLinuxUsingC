@@ -1,6 +1,6 @@
 ## **3. Program: File Transfer (Streaming)**  
 ### **File:** `file_transfer/with_no_buff.c`
-![Buffer](./Buffer.pngBuffer.png)
+![Buffer](./Buffer.png)
 
 ---
 
