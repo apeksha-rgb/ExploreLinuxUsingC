@@ -15,12 +15,12 @@ double now_seconds() {
 
 /* ------------ GLOBAL BUFFERS (OPTIONAL BUFFERED IO) ------------- */
 #ifdef USE_BUFFERED_IO
-static unsigned char read_buffer[BUFFER_SIZE];
-static size_t read_buf_pos = 0;
-static size_t read_buf_len = 0;
+    static unsigned char read_buffer[BUFFER_SIZE];
+    static size_t read_buf_pos = 0;
+    static size_t read_buf_len = 0;
 
-static unsigned char write_buffer[BUFFER_SIZE];
-static size_t write_buf_pos = 0;
+    static unsigned char write_buffer[BUFFER_SIZE];
+    static size_t write_buf_pos = 0;
 #endif
 
 /* ------------ READ FUNCTION ------------- */

@@ -6,48 +6,48 @@
 #define NUM_CHUNKS 1000          // ~1 GB
 
 typedef struct Node {
-void *ptr;
-struct Node *next;
+    void *ptr;
+    struct Node *next;
 } Node;
 
 int main() {
-Node *head = NULL;
+    Node *head = NULL;
 
-printf("Allocating %d chunks of 1MB each...\n", NUM_CHUNKS);
+    printf("Allocating %d chunks of 1MB each...\n", NUM_CHUNKS);
 
-for (int i = 0; i < NUM_CHUNKS; i++) {
-    void *p = malloc(CHUNK_SIZE);
-    if (!p) {
-        printf("malloc failed at chunk %d\\n", i);
-        break;
+    for (int i = 0; i < NUM_CHUNKS; i++) {
+        void *p = malloc(CHUNK_SIZE);
+        if (!p) {
+            printf("malloc failed at chunk %d\\n", i);
+            break;
+        }
+
+        // Touch the memory so Linux actually commits it
+        memset(p, 0xAA, CHUNK_SIZE);
+
+        Node *n = malloc(sizeof(Node));
+        n->ptr = p;
+        n->next = head;
+        head = n;
+
+        printf("Allocated: %d MB\n", i + 1);
+        usleep(10000); // slow down so you can watch top/htop update
     }
 
-    // Touch the memory so Linux actually commits it
-    memset(p, 0xAA, CHUNK_SIZE);
+    printf("\nMemory allocated. Check RAM usage now.\n");
+    printf("Press ENTER to free all memory...");
+    getchar();
 
-    Node *n = malloc(sizeof(Node));
-    n->ptr = p;
-    n->next = head;
-    head = n;
+    // Free all memory
+    Node *curr = head;
+    while (curr) {
+        free(curr->ptr);
+        Node *tmp = curr;
+        curr = curr->next;
+        free(tmp);
+    }
 
-    printf("Allocated: %d MB\n", i + 1);
-    usleep(10000); // slow down so you can watch top/htop update
-}
-
-printf("\nMemory allocated. Check RAM usage now.\n");
-printf("Press ENTER to free all memory...");
-getchar();
-
-// Free all memory
-Node *curr = head;
-while (curr) {
-    free(curr->ptr);
-    Node *tmp = curr;
-    curr = curr->next;
-    free(tmp);
-}
-
-printf("All memory freed. Check RAM usage again.\n");
-return 0;
+    printf("All memory freed. Check RAM usage again.\n");
+    return 0;
 
 }

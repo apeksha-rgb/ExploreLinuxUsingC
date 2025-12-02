@@ -25,19 +25,19 @@
 // Initialize Winsock (Windows only)
 // ---------------------------------------
 void init_sockets() {
-#ifdef _WIN32
-    WSADATA wsa;
-    WSAStartup(MAKEWORD(2,2), &wsa);
-#endif
+    #ifdef _WIN32
+        WSADATA wsa;
+        WSAStartup(MAKEWORD(2,2), &wsa);
+    #endif
 }
 
 // ---------------------------------------
 // Cleanup Winsock
 // ---------------------------------------
 void cleanup_sockets() {
-#ifdef _WIN32
-    WSACleanup();
-#endif
+    #ifdef _WIN32
+        WSACleanup();
+    #endif
 }
 
 // ---------------------------------------
@@ -64,11 +64,11 @@ void receive_message(int sock) {
     int n = recv(sock, buf, BUF - 1, 0);
 
     if (n <= 0) {
-#ifdef _WIN32
-        printf("Connection closed. Error: %d\n", WSAGetLastError());
-#else
-        perror("recv");
-#endif
+        #ifdef _WIN32
+            printf("Connection closed. Error: %d\n", WSAGetLastError());
+        #else
+            perror("recv");
+        #endif
         exit(0);
     }
 
@@ -91,65 +91,65 @@ int main() {
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
-#ifdef SERVER
-    // ------------------ SERVER ------------------
-    printf("Starting server...\n");
+    #ifdef SERVER
+        // ------------------ SERVER ------------------
+        printf("Starting server...\n");
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = INADDR_ANY;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(PORT);
+        addr.sin_addr.s_addr = INADDR_ANY;
 
-    if(bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
-        perror("bind failed");
-        exit(1);
-    };
-    listen(sock, 1);
+        if(bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
+            perror("bind failed");
+            exit(1);
+        };
+        listen(sock, 1);
 
-    printf("Waiting for client...\n");
+        printf("Waiting for client...\n");
     
-    struct sockaddr_in clientAddr;
+        struct sockaddr_in clientAddr;
 
-    int clientSock;
-    socklen_t len = sizeof(clientAddr);
-    clientSock = accept(sock, (struct sockaddr*)&clientAddr, &len);
+        int clientSock;
+        socklen_t len = sizeof(clientAddr);
+        clientSock = accept(sock, (struct sockaddr*)&clientAddr, &len);
 
-    if(clientSock < 0){
-        perror("accept failed");
-        exit(1);
-    }
+        if(clientSock < 0){
+            perror("accept failed");
+            exit(1);
+        }
 
-    printf("Client connected.\n");
+        printf("Client connected.\n");
 
-    // Chat loop
-    while (1) {
-        receive_message(clientSock);
-        send_message(clientSock);
-    }
+        // Chat loop
+        while (1) {
+            receive_message(clientSock);
+            send_message(clientSock);
+        }
 
-#else
-    // ------------------ CLIENT ------------------
-    printf("Client: Enter server IP: ");
-    char ip[32];
-    scanf("%31s", ip);
+    #else
+        // ------------------ CLIENT ------------------
+        printf("Client: Enter server IP: ");
+        char ip[32];
+        scanf("%31s", ip);
 
-    int c;
-    while ((c=getchar()) !='\n' && c!= EOF); // clear newline
+        int c;
+        while ((c=getchar()) !='\n' && c!= EOF); // clear newline
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    inet_pton(AF_INET, ip, &addr.sin_addr);
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(PORT);
+        inet_pton(AF_INET, ip, &addr.sin_addr);
 
-    printf("Connecting...\n");
-    connect(sock, (struct sockaddr*)&addr, sizeof(addr));
-    printf("Connected to server.\n");
+        printf("Connecting...\n");
+        connect(sock, (struct sockaddr*)&addr, sizeof(addr));
+        printf("Connected to server.\n");
 
-    // Chat loop
-    while (1) {
-        send_message(sock);
-        receive_message(sock);
-    }
+        // Chat loop
+        while (1) {
+            send_message(sock);
+            receive_message(sock);
+        }
 
-#endif
+    #endif
 
     CLOSESOCK(sock);
     cleanup_sockets();
